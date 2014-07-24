@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="D:/__css/github.css" type="text/css" />
+</head>
+<body>
+<h1 id="第-8-章-编译执行与错误">第 8 章 编译，执行与错误</h1>
+<h2 id="编译">8.1 编译</h2>
+<ul>
+<li>dofile 只是编译代码，多次调用一次编译</li>
+<li>loadfile 不会引发错误，多次调用多次编译</li>
+<li>loadstring 读入字符串，非文件。总是在全局环境中编译</li>
+</ul>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">function</span> <span class="fu">dofile</span> <span class="ot">(</span>filename<span class="ot">)</span>
+    <span class="kw">local</span> f <span class="ot">=</span> <span class="fu">assert</span><span class="ot">(</span><span class="fu">loadfile</span><span class="ot">(</span>filename<span class="ot">))</span>
+    <span class="kw">return</span> f<span class="ot">()</span>
+<span class="kw">end</span></code></pre>
+<p>loadstring 最典型的用处是执行外部代码</p>
+<p>loadfile和loadstring在lua中正真原始函数是load，load接受一个读取器函数，读取器函数可以分几次返回一个程序块。</p>
+<h2 id="c代码">8.2 C代码</h2>
+<p>lua为几种平台实现了一套<code>动态链接机制</code>。</p>
+<p>lua提供所有关于动态链接的功能都聚集在一个函数中，即<code>package.loadlib(libpath, funcname)</code></p>
+<p>通常使用<code>require</code>来加载C程序库，这个函数会指定库，然后回通过<code>loadlib</code>来加载库，并返回初始化函数。这个初始化函数应将库中提供的函数注册到lua中，就像一段lua代码定义了其他函数一样。</p>
+<h2 id="错误">8.3 错误</h2>
+<p><code>error函数</code> 传入一个错误消息参数</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="co">-- 十分常用</span>
+<span class="kw">if</span> <span class="kw">not</span> <span class="ot">&lt;</span>condition<span class="ot">&gt;</span> <span class="kw">then</span>
+    <span class="fu">error</span><span class="ot">(</span><span class="st">&quot;...&quot;</span><span class="ot">)</span>
+<span class="kw">end</span>
+
+<span class="co">-- lua内建assert函数</span>
+<span class="fu">assert</span><span class="ot">(</span><span class="fu">io.read</span><span class="ot">(</span><span class="st">&quot;*number&quot;</span><span class="ot">),</span> <span class="st">&quot;invalid input&quot;</span><span class="ot">)</span></code></pre>
+<h2 id="错误处理与异常">8.4 错误处理与异常</h2>
+<p>若要在lua中处理错误，则必须使用函数<code>pcall</code>来包装需要执行的代码。</p>
+</body>
+</html>

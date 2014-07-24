@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="D:/__css/github.css" type="text/css" />
+</head>
+<body>
+<h1 id="第-7-章-迭代器与泛型for">第 7 章 迭代器与泛型for</h1>
+<h2 id="迭代器与closure">7.1 迭代器与closure</h2>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">function</span> values<span class="ot">(</span>t<span class="ot">)</span>
+    <span class="kw">local</span> i <span class="ot">=</span> <span class="dv">0</span>
+    <span class="kw">return</span> <span class="kw">function</span><span class="ot">()</span>
+        i <span class="ot">=</span> i <span class="ot">+</span> <span class="dv">1</span>
+        <span class="kw">return</span> t<span class="ot">[</span>i<span class="ot">]</span>
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>需要结合每个新的循环都创建一个closure</p>
+<h2 id="泛型for语义">7.2 泛型for语义</h2>
+<p>泛型for在循环过程内部保存了迭代器函数。实际上，他保存了一个值，一个迭代器函数、一个恒定状态和一个控制变量</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">for</span> <span class="ot">&lt;</span>var<span class="ot">-</span>list<span class="ot">&gt;</span> <span class="kw">in</span> <span class="ot">&lt;</span><span class="fu">exp</span><span class="ot">-</span>list<span class="ot">&gt;</span> <span class="kw">do</span>
+    <span class="ot">&lt;</span>body<span class="ot">&gt;</span>
+<span class="kw">end</span></code></pre>
+<p>for做的第一件事情是对<code>exp-list</code>求值</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">do</span>
+    <span class="kw">local</span> _f<span class="ot">,</span> _s<span class="ot">,</span> _var <span class="ot">=</span> <span class="ot">&lt;</span>explist<span class="ot">&gt;</span>
+    <span class="kw">while</span> <span class="kw">true</span> <span class="kw">do</span>
+        <span class="kw">local</span> var_1 <span class="ot">...</span> var_n <span class="ot">=</span> _f<span class="ot">(</span>_s<span class="ot">,</span> _var<span class="ot">)</span>
+        _var <span class="ot">=</span> var_1
+        <span class="kw">if</span> _var <span class="ot">==</span> <span class="kw">nil</span> <span class="kw">then</span>
+            <span class="kw">break</span>
+        <span class="kw">end</span>
+        <span class="ot">&lt;</span>body<span class="ot">&gt;</span>
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<h2 id="无状态的迭代器">7.3 无状态的迭代器</h2>
+<p>每次迭代中，for循环都会用恒定状态和控制变量来调用迭代函数。一个无状态的迭代器可以根据这两个值来生成下一个元素。这类迭代器的一个典型例子就是<code>ipairs</code></p>
+<p>函数ipairs与pairs类似，但pairs是用了lua中的next</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">function</span> <span class="fu">pairs</span><span class="ot">(</span>t<span class="ot">)</span>
+    <span class="kw">return</span> <span class="fu">next</span><span class="ot">,</span> t<span class="ot">,</span> <span class="kw">nil</span> <span class="co">--&gt; 迭代函数，恒定状态，控制变量</span>
+<span class="kw">end</span></code></pre>
+<p>在调用next(t, k)时，k是table的一个键。此调用会以table中的任意次序返回一组值(key, value)</p>
+<p>而调用next(t, nil)时，则返回第一组值</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">for</span> k<span class="ot">,</span> v int <span class="fu">next</span><span class="ot">,</span> t <span class="kw">do</span>
+    <span class="ot">&lt;</span>body<span class="ot">&gt;</span>
+<span class="kw">end</span></code></pre>
+</body>
+</html>

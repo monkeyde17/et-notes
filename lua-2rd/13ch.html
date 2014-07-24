@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="D:/__css/github.css" type="text/css" />
+</head>
+<body>
+<h1 id="第-13-章-元表与元方法">第 13 章 元表与元方法</h1>
+<p>当lua视图将两个table相加时，他会先检查两者之一是否有元表，然后检查该元表中是否有一个叫__add的字段。若找到了该字段则调用该字段对应的值。这个值就是所谓的元方法，它该是一个函数，用于计算table的和。</p>
+<p>lua中每个值都有一个元表，table和userdata可以有各自的元表，而其他类型值则共享其类型所属的单一元表。<strong>lua在创建新table时，不会去创建元表。</strong></p>
+<p>可以用setmetatable来设置或者修改任何table的元表。</p>
+<p>任何table都可以作为任何值的元表，一组相关的table也可以共享一个通用的元表，该元素描述了他们的共同行为。一个table甚至可以作为自己的元表，用于描述其特有的行为。总之，任何搭配形式都是合法的。</p>
+<p>在lua中只能设置table的元素，若想设置其他类型的元素需要在c代码中完成。</p>
+<p>在第20章中，标准字符串程序库为所有字符串都设置了元表，而其他类型默认是没有的。</p>
+<h2 id="算术类的元方法">13.1 算术类的元方法</h2>
+<p>在元表中，每种算法都有自己对应的字段名。</p>
+<ul>
+<li>__add</li>
+<li>__mul</li>
+<li>__sub</li>
+<li>__div</li>
+<li>__unm(相反数)</li>
+<li>__mod</li>
+<li>__pow</li>
+<li>__concat</li>
+</ul>
+<p>lua按照如下步骤来查找元表:</p>
+<ul>
+<li>若第一个值有元表并元表中有__add字段，那么lua就以这个字段为元方法，而与第二个值无关</li>
+<li>若第二个值有元表并含有__add字段，lua就以此字段为元方法</li>
+<li>若两个值都无元方法，则引发一个错误</li>
+</ul>
+<h2 id="关系类的元方法">13.2 关系类的元方法</h2>
+<p>元表还可以指定关系操作符的含义</p>
+<ul>
+<li>__eq</li>
+<li>__lt（小于）</li>
+<li>__le（小于等于）</li>
+</ul>
+<p>其他关系操作符没有单独的元方法，lua会将<code>a ~= b</code>转换为<code>not (a == b)</code>，将<code>a &gt; b</code>转为<code>b &lt; a</code>， 将<code>a &gt;= b</code>转为<code>b &lt;= a</code></p>
+<p>与算术类元方法不同的是，关系类的元方法不能应用于混合类型。对于混合类型而言，关系类元方法的行为就模拟这些操作在lua中普通行为。如果试图将一个字符串与一个数字作顺序性比较，lua会引发一个错误。</p>
+<p>等于比较永远不会引发错误，但是如果两对象有用不同元方法，那么等操作不会调用任何一个元方法，而会直接返回<code>false</code></p>
+<h2 id="库定义的元方法">13.3 库定义的元方法</h2>
+<p>函数<code>setmetatable</code>和<code>getmetatable</code>也会用到元表中的一个字段，用于保护元表，假设想要保护集合元表，使用户既不能看到也不能修改集合元表。那么就需要用到字段<code>__metatable</code>当设置了该字段时，<code>getmetatable</code>便会返回该字段的值，而<code>setmetatable</code>会引发一个错误。</p>
+<h2 id="section">13.4</h2>
+<h3 id="table-访问元方法">1. table 访问元方法</h3>
+<p>当访问一个<code>table</code>中不存在的字段时，得到的结果为<code>nil</code>，解释器回去查找一个<code>__index</code>元方法。</p>
+<ul>
+<li>若找不到，返回nil</li>
+<li>否则由这个方法来提供最终结果</li>
+</ul>
+<p>在<code>lua</code>中，将<code>__index</code>元方法用于继承是很普遍的方法，因此<code>lua</code>还提供了一种更加便捷的方式来实现此功能，<code>__index</code>元方法不必议定书一个函数，他还可以是一个<code>table</code></p>
+<ul>
+<li>当它是一个table的时候，lua以相同的方式来重新访问这个table</li>
+<li>当它是一个函数时，lua以table和不存在的key作为参数来调用该函数</li>
+</ul>
+<h3 id="newindex元方法">2. __newindex元方法</h3>
+<p><strong>newindex元方法与</strong>index类似，不同之处在于前者用于table的更新，后者用于table的查询。当对一个table中不存在的索引赋值时，解释器就会查找__newindex元方法:</p>
+<ul>
+<li>若果有这个元方法则调用，而不是执行赋值</li>
+<li>如果这个元方法是一个table，则对这个table赋值，而不是对原来的table赋值。</li>
+</ul>
+<p>调用rawset(t, k, v)便可不涉及任何元方法，直接对此table赋值</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">function</span> setDefualt<span class="ot">(</span>t<span class="ot">,</span> d<span class="ot">)</span>
+    <span class="kw">local</span> mt <span class="ot">=</span> <span class="ot">{</span>__index <span class="ot">=</span> <span class="kw">function</span><span class="ot">()</span>
+            <span class="kw">return</span> d
+        <span class="kw">end</span>
+    <span class="ot">}</span>
+    <span class="fu">setmetatable</span><span class="ot">(</span>t<span class="ot">,</span> mt<span class="ot">)</span>
+<span class="kw">end</span>
+<span class="co">-- 具有默认值的table</span>
+tab <span class="ot">=</span> <span class="ot">{</span>x <span class="ot">=</span> <span class="dv">10</span><span class="ot">,</span> y <span class="ot">=</span> <span class="dv">20</span><span class="ot">}</span>
+<span class="fu">print</span> <span class="ot">(</span>tab<span class="ot">.</span>x<span class="ot">,</span> tab<span class="ot">.</span>y<span class="ot">)</span>    <span class="co">--&gt; 10, nil</span>
+setDefalut<span class="ot">(</span>tab<span class="ot">,</span> <span class="dv">0</span><span class="ot">)</span>
+<span class="fu">print</span> <span class="ot">(</span>tab<span class="ot">.</span>x<span class="ot">,</span> tab<span class="ot">.</span>z<span class="ot">)</span>    <span class="co">--&gt; 10, 0</span></code></pre>
+<hr />
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="co">-- 保证名称不冲突</span>
+<span class="kw">local</span> key <span class="ot">=</span> <span class="ot">{}</span>
+<span class="kw">local</span> mt <span class="ot">=</span> <span class="ot">{</span>__index <span class="ot">=</span> <span class="kw">function</span> <span class="ot">(</span>t<span class="ot">)</span>
+        <span class="kw">return</span> t<span class="ot">[</span>key<span class="ot">]</span>
+    <span class="kw">end</span>
+<span class="ot">}</span>
+
+<span class="kw">function</span> setDefalut<span class="ot">(</span>t<span class="ot">,</span> d<span class="ot">)</span>
+    t<span class="ot">[</span>key<span class="ot">]</span> <span class="ot">=</span> d
+    <span class="fu">setmetatable</span><span class="ot">(</span>t<span class="ot">,</span> mt<span class="ot">)</span>
+<span class="kw">end</span></code></pre>
+<blockquote>
+<p>弱引用，17章，备忘录(memoize)</p>
+</blockquote>
+<h3 id="跟踪table的访问">4. 跟踪table的访问</h3>
+<p><strong>index和</strong>newindex都是在table中没有所需访问的index时才起作用。因此，只有将一个table保持为空，才有可能捕捉到所有对它的访问。为了见识一个table的所有访问，就应该为真正的table简历一个代理，这个代理就是一个空的table，其中__index和__newindex元方法可用于跟踪所有访问，并将访问重定向到原来的table上。</p>
+<h3 id="只读table">5. 只读table</h3>
+<p>只需跟踪所有对table的更新操作，并引发一个错误就可以了。</p>
+</body>
+</html>
