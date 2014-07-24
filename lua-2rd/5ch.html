@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="D:/__css/github.css" type="text/css" />
+</head>
+<body>
+<h1 id="第-5-章-函数">第 5 章 函数</h1>
+<p>一个函数若只有一个参数，并且此参数是一个<strong>字面字符串</strong>或<strong>table构造式</strong>，则圆括号可有可无。</p>
+<p><code>冒号操作符</code></p>
+<pre class="sourceCode lua"><code class="sourceCode lua">o<span class="ot">.</span>foo<span class="ot">(</span>o<span class="ot">,</span> x<span class="ot">)</span> <span class="co">-- line one</span>
+o:foo<span class="ot">(</span>x<span class="ot">)</span>    <span class="co">-- same as line one </span></code></pre>
+<p>调用函数是提供的实际参数可以与形参数量不同。</p>
+<ul>
+<li>若实参<strong>多于</strong>形参，则舍弃多余实参</li>
+<li>若实参<strong>少于</strong>形参，则初始化为<code>nil</code></li>
+</ul>
+<h2 id="多重赋值">5.1 多重赋值</h2>
+<p>lua会调整一个函数的返回值数量以适应不同的调用情况。</p>
+<ul>
+<li>若将函数作为表达式的一部分来调用时，lua只保留第一个返回值。</li>
+<li>只当有一个函数调用是一系列表达式的最后一个元素(或仅有一个元素)时，才获得函数的所有返回值。</li>
+</ul>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="co">-- 多重赋值</span>
+x<span class="ot">,</span> y <span class="ot">=</span> foo2<span class="ot">()</span>
+x<span class="ot">,</span> y<span class="ot">,</span> z <span class="ot">=</span> <span class="dv">10</span><span class="ot">,</span> foo2<span class="ot">()</span>
+x<span class="ot">,</span> y <span class="ot">=</span> foo2<span class="ot">(),</span> <span class="dv">10</span>       <span class="co">--&gt; foo2() 只返回第一个值</span>
+
+<span class="co">-- 作为另一个函数的实参</span>
+<span class="fu">print</span><span class="ot">(</span>foo2<span class="ot">())</span>
+<span class="fu">print</span><span class="ot">(</span>foo2<span class="ot">(),</span> <span class="dv">1</span><span class="ot">)</span>        <span class="co">--&gt; foo2() 只返回第一个值</span>
+
+<span class="co">-- table 构造式</span>
+a <span class="ot">=</span> <span class="ot">{</span>foo2<span class="ot">()}</span>
+a <span class="ot">=</span> <span class="ot">{</span>foo2<span class="ot">(),</span> <span class="st">&quot;a&quot;</span><span class="ot">}</span>       <span class="co">--&gt; foo2() 只返回第一个值</span>
+
+<span class="co">-- return 语句</span>
+<span class="kw">return</span> foo2<span class="ot">()</span>
+<span class="kw">return</span> <span class="ot">(</span>foo2<span class="ot">())</span>         <span class="co">--&gt; foo2() 只返回第一个值</span></code></pre>
+<p><code>unpack函数</code>，接受一个数组为参数，并从下标1开始返回所有参数</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">function</span> <span class="fu">unpack</span><span class="ot">(</span>t<span class="ot">,</span> i<span class="ot">)</span>
+    i <span class="ot">=</span> i <span class="kw">or</span> <span class="dv">1</span>
+    <span class="kw">if</span> t<span class="ot">[</span>i<span class="ot">]</span> <span class="kw">then</span>
+        <span class="kw">return</span> t<span class="ot">[</span>i<span class="ot">],</span> <span class="fu">unpack</span><span class="ot">(</span>t<span class="ot">,</span> i <span class="ot">+</span> <span class="dv">1</span><span class="ot">)</span>
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<h2 id="变长参数">5.2 变长参数</h2>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">function</span> add <span class="ot">(...)</span>
+    <span class="kw">local</span> s <span class="ot">=</span> <span class="dv">0</span>
+    <span class="kw">for</span> i<span class="ot">,</span> v <span class="kw">in</span> <span class="fu">ipairs</span><span class="ot">{...}</span> <span class="kw">do</span>
+        s <span class="ot">=</span> s <span class="ot">+</span> v
+    <span class="kw">end</span>
+    <span class="kw">return</span> s
+<span class="kw">end</span></code></pre>
+<blockquote>
+<p>若变长参数中含有nil 需用select来访问</p>
+</blockquote>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">for</span> i <span class="ot">=</span> i<span class="ot">,</span> select<span class="ot">(</span><span class="st">&#39;#&#39;</span><span class="ot">,</span> <span class="ot">...)</span> <span class="kw">do</span>
+    <span class="kw">local</span> arg <span class="ot">=</span> select<span class="ot">(</span>i<span class="ot">,</span> <span class="ot">...)</span>  <span class="co">--&gt; 得到第i个参数</span>
+    <span class="ot">...</span>
+<span class="kw">end</span></code></pre>
+<p>select('#', ...) 会返回素有变长参数总数，包括nil</p>
+<h2 id="具名参数">5.3 具名参数</h2>
+<p>lua中参数传递机制具有<code>位置性</code></p>
+<p>我们可以通过地调用实参只有一个table表达式的函数来实现具名实参的功能</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">function</span> <span class="fu">rename</span><span class="ot">(</span>arg<span class="ot">)</span>
+    <span class="kw">return</span> <span class="fu">os.rename</span><span class="ot">(</span>arg<span class="ot">.</span>old<span class="ot">,</span> arg<span class="ot">.</span>new<span class="ot">)</span>
+<span class="kw">end</span>
+
+<span class="fu">rename</span> <span class="ot">{</span>old <span class="ot">=</span> <span class="st">&quot;temp.lua&quot;</span><span class="ot">,</span> new <span class="ot">=</span> <span class="st">&quot;temp1.lua&quot;</span><span class="ot">}</span></code></pre>
+</body>
+</html>
