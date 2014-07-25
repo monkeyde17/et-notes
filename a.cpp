@@ -13,5 +13,10 @@ int main(int argc, char *argv[])
 	{
 		cout << "look out" << endl;
 	}
+
+	auto a = [](int, int) -> int
+	{
+		cout << a << endl;	
+	};
 	return 0;
 }
