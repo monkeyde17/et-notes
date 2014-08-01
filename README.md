@@ -1,4 +1,4 @@
-Etond's Language Note
-=====================
+Etond's Programming Language Note
+=================================
 
 * lua
