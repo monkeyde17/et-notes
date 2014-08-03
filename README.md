@@ -1,4 +1,4 @@
 Etond's Programming Language Note
 =================================
 
-* lua
+* lua-2rd
