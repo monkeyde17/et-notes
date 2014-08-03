@@ -89,7 +89,7 @@ void RedBlackTree::rightRotate()
 
     if (leftChild->getParent())
     {
-        leftChild->rightChild()->setParent(this);
+        leftChild->getRightChild()->setParent(this);
     }
 
     leftChild->setParent(getParent());

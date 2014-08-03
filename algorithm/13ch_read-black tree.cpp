@@ -1,6 +1,9 @@
-#include <csdio>
+#include <cstdio>
 
-Class RedBlackTree
+// c++11
+#define nullptr NULL
+
+class RedBlackTree
 {
 public:
 	RedBlackTree();
@@ -28,6 +31,8 @@ private:
 	RedBlackTree *right;
 	RedBlackTree *p;
 };
+
+RedBlackTree* RedBlackTree::root;
 
 RedBlackTree::RedBlackTree()
 	: color(0)
@@ -89,7 +94,7 @@ void RedBlackTree::rightRotate()
 
 	if (leftChild->getParent())
 	{
-		leftChild->rightChild()->setParent(this);
+		leftChild->getRightChild()->setParent(this);
 	}
 
 	leftChild->setParent(getParent());
@@ -112,3 +117,8 @@ void RedBlackTree::rightRotate()
 }
 
 
+int main(int argc, char const *argv[])
+{
+	/* code */
+	return 0;
+}
