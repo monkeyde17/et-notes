@@ -15,11 +15,11 @@
 
 红黑树性质：
 
-* 每个结点不是红的就是黑的
-* 根结点是黑的
-* 每个叶结点(NIL)是黑的
-* 如果一个结点是红的，那么它的两个字结点是黑的
-* 对于每个结点，从该结点到子孙结点的所有路径上包含相同数目的黑结点。
+1. 每个结点不是红的就是黑的
+2. 根结点是黑的
+3. 每个叶结点(NIL)是黑的
+4. 如果一个结点是红的，那么它的两个字结点是黑的
+5. 对于每个结点，从该结点到子孙结点的所有路径上包含相同数目的黑结点。
 
 从某个结点`x`出发（不包括该结点）到达一个子叶结点的任意一条路上，黑色结点的个数称为该结点的`黑高度`，用`bh(x)`表示。
 
@@ -109,5 +109,152 @@ void RedBlackTree::rightRotate()
 
     leftChild->setRightChild(this);
     setParent(leftChild);
+}
+```
+
+## 13\.3 插入
+
+假设`key`事先被赋值
+可能被破坏的红黑树性质：
+
+* 根节点为黑色的性质2
+* 红色结点不能有红子女结点的性质4
+
+> 至多只有一个性质被破坏。只有是根节点的时候才会破坏性质2，否则只会破坏性质4
+
+* 若z结点`父节点`为`根节点`，那么该`父节点`为黑色。由此可知，当z结点`父节点`为`红色`且不为`根节点`时，z结点其祖父结点必定有效。
+
+---------------------
+
+插入分3中情况：
+
+1. z的叔叔y是红色
+
+> * z的父亲和y着色为黑色
+> * z的祖父着色为红色
+> * 将z上移两层，进行下次迭代
+
+2. z的叔叔y是黑色的，而且z是右孩子
+
+> * 以z的父节点左旋一次，使z成为左孩子，进入第三种情况
+
+3. z的叔叔y是黑色的，而且z是左孩子
+
+> * z的父亲着色为黑色
+> * z的祖父作色为红色
+> * 以z的祖父结点右旋一次，保持红黑树深度，结束循环！
+
+* 最后，将根节点着色为黑色！
+
+```cpp
+void RedBlackTree::insert(RedBlackTree *z)
+{
+    RedBlackTree *y = nullptr;
+    RedBlackTree *x = root;
+
+    while (x)
+    {
+        y = x;
+        if (z->getKey() < x->getKey())
+        {
+            x = x->getLeftChild();
+        }
+        else
+        {
+            x = x->getRightChild();
+        }
+    }
+
+    z->setParent(y);
+
+    if (nullptr == y)
+    {
+        root = z;
+    }
+    else if (z->getKey() < y->getKey())
+    {
+        y->setLeftChild(z);
+    }
+    else
+    {
+        y->setRightChild(z);
+    }
+
+    z->setLeftChild(nullptr);
+    z->setRightChild(nullptr);
+
+    z->setColor(RED);
+    insertFixup(z);
+}
+
+void RedBlackTree::insertFixup(RedBlackTree *z)
+{
+    // 当父节点为红色时
+    while (z->getParent()->getColor() == RED)
+    {
+        // z结点的父节点是z结点的祖父节点的左儿子
+        if (z->getParent() == z->getParent()->getParent()->getLeftChild())
+        {
+            // z结点的叔叔结点y，若z不为根节点，则z结点的祖父结点必定有效
+            RedBlackTree *y = z->getParent()->getParent()->getRightChild();
+
+            // y结点若为红色
+            if (y->getColor() == RED)
+            {
+                z->getParent()->setColor(BLACK);
+                y->setColor(BLACK);
+                z->getParent()->getParent()->setColor(RED);
+                // z结点上移2层
+                // 继续往上验证红黑树性质
+                z = z->getParent()->getParent();
+            }
+            else
+            {
+                // 若z结点为父节点的右儿子
+                if (z == z->getParent()->getRightChild())
+                {
+                    // 左旋后，z结点父节点即为z结点
+                    z = z->getParent();
+                    // 左旋，把情况都转为z结点为其父节点的左儿子
+                    z->leftRotate();
+                }
+                z->getParent()->setColor(BLACK);
+                z->getParent()->getParent()->setColor(RED);
+                
+                // 右旋，保持树深度
+                // 结束循环，得到合法红黑树
+                z->getParent()->getParent()->rightRotate();
+            }
+        }
+        else
+        {
+            RedBlackTree *y = z->getParent()->getParent()->getLeftChild();
+
+            if (y->getColor() == RED)
+            {
+                z->getParent()->setColor(BLACK);
+                y->setColor(BLACK);
+                z->getParent()->getParent()->setColor(RED);
+
+                z = z->getParent()->getParent();
+            }
+            else 
+            {
+                if (z == z->getParent()->getLeftChild())
+                {
+                    z = z->getParent();
+                    z->rightRotate();   
+                }
+
+                z->getParent()->setColor(BLACK);
+                z->getParent()->getParent()->setColor(RED);
+
+                z->getParent()->getParent()->leftRotate();
+            }
+        }
+    }
+
+    // 根结点为黑色
+    root->setColor(BLACK);
 }
 ```
