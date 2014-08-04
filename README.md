@@ -1,5 +1,5 @@
 Etond's Programming Language Note
 =================================
 
-* lua-2rd
+* Programming in Lua, Second Edition
 * Introduction to Algorithm
