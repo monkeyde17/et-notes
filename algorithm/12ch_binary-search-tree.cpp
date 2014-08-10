@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <stack>
 
 // c++11
 #define nullptr NULL
@@ -15,6 +16,14 @@ public:
 	void inorder_it_0(BinarySearchTree *x);
 	void inorder_it_1(BinarySearchTree *x);
 
+	void insert(BinarySearchTree *z);
+
+	BinarySearchTree *search(BinarySearchTree *node, int k);
+	BinarySearchTree *search_it(BinarySearchTree *node, int k);
+
+	BinarySearchTree *getMin(BinarySearchTree *node);
+	BinarySearchTree *getMax(BinarySearchTree *node);
+
 public:
 	BinarySearchTree *getRightChild() { return left; }
 	BinarySearchTree *getLeftChild() { return right; } 
@@ -25,6 +34,8 @@ public:
 	void setLeftChild(BinarySearchTree *node) { right = node; } 
 	void setParent(BinarySearchTree *node) { p = node;} 
 	void setKey(int k) { key = k; }
+private:
+	static BinarySearchTree *root;
 
 private:
 	void *data;
@@ -34,7 +45,14 @@ private:
 	BinarySearchTree *p;
 };
 
+BinarySearchTree* BinarySearchTree::root;
+
 BinarySearchTree::BinarySearchTree()
+	: data(nullptr)
+	, key(0)
+	, left(nullptr)
+	, right(nullptr)
+	, p(nullptr)
 {}
 
 BinarySearchTree::~BinarySearchTree()
@@ -42,7 +60,7 @@ BinarySearchTree::~BinarySearchTree()
 
 void BinarySearchTree::print()
 {
-	printf("key : %d", key);
+	printf("key : %d\n", key);
 }
 
 void BinarySearchTree::inorder(BinarySearchTree *x)
@@ -57,62 +75,166 @@ void BinarySearchTree::inorder(BinarySearchTree *x)
 
 void BinarySearchTree::inorder_it_0(BinarySearchTree *x)
 {
-	BinarySearchTree *r = x;
-
-	while (x)
+	std::stack<BinarySearchTree*> s;
+	while (x || !s.empty())
 	{
-		BinarySearchTree *q = x->getLeftChild();
-
-		if (q)
+		while (x)
 		{
-			while (q != r && q->getRightChild())
-			{
-				q = q->getRightChild();
-			}
-
-			if (q != r)
-			{
-				q->setRightChild(p);
-				p = p->getLeftChild();
-				continue ;
-			}
-			else
-			{
-				q->setRightChild(nullptr);
-			}
+			s.push(x);
+			x = x->getLeftChild();
 		}
 
-		p->print();
-
-		r = p;
-		p = p->getRightChild();
+		x = s.top();
+		s.pop();
+		x->print();
+		x = x->getRightChild();
 	}
 }
 
+/**
+ * 中序遍历子树
+ * 空间复杂度 O(1)
+ * 
+ * @param x : 子树根结点
+ */
 void BinarySearchTree::inorder_it_1(BinarySearchTree *x)
 {
-	BinarySearchTree *t = x;
-	BinarySearchTree *pLastLeft = nullptr;
-	BinarySearchTree *pLastRight = nullptr;
-	BinarySearchTree *pLastMid = nullptr;
-
-	while (t != x)
+	// 当前结点
+	BinarySearchTree *node = x;
+	// 先将当前结点移动到改子树的最左
+	while (node->getLeftChild())
 	{
-		while (t->getLeftChild() != pLastLeft)
-		{
-			t = t->getLeftChild();
-		}
-		t->print();
-		pLastLeft = t;
+		node = node->getLeftChild();
+	}
 
-		if (t->getRightChild())
+	while (node)
+	{
+		node->print();
+
+		// 若有右孩子，则将结点移动到右子树的最左结点
+		if (node->getRightChild())
 		{
-			if (t->getLeftChild()->getLeftChild() == nullptr)
+			node = node->getRightChild();
+
+			while (node->getLeftChild())
 			{
-				t->get
+				node = node->getLeftChild();
 			}
 		}
+		// 若没有右孩子，则该结点为叶子结点
+		// 该结点输出之后，则以当前结点的父节点的子树输出完毕
+		else
+		{
+			BinarySearchTree *tmp = node;
+			node = node->getParent();
 
+			// 如果当前结点是其父节点的右儿子
+			// 则需要将当前结点上移一层
+			// 直到当前结点是其父节点的左儿子
+			while (node && tmp == node->getRightChild())
+			{
+				// 退出条件
+				if (node == x)
+				{
+					node = nullptr;
+					break;
+				}
 
+				tmp = node;
+				node = node->getParent();
+			}
+		}
 	}
+}
+
+
+BinarySearchTree * BinarySearchTree::search(BinarySearchTree *node, int k)
+{
+	if (nullptr == node || k == node->getKey())
+	{
+		return node;
+	}
+
+	if (k < node->getKey())
+	{
+		return search(node->getLeftChild(), k);
+	}
+	else
+	{
+		return search(node->getRightChild(), k);
+	}
+}
+
+BinarySearchTree * BinarySearchTree::search_it(BinarySearchTree *node, int k)
+{
+	while (node && k != node->getKey())
+	{
+		if (k < node->getLeftChild())
+		{
+			node = node->getLeftChild();
+		}
+		else
+		{
+			node = node->getRightChild();
+		}
+	}
+	return node;
+}
+
+BinarySearchTree *BinarySearchTree::getMin(BinarySearchTree *node)
+{
+	while (node->getLeftChild())
+	{
+		node = node->getLeftChild();
+	}
+	return node;
+}
+
+BinarySearchTree *BinarySearchTree::getMax(BinarySearchTree *node)
+{
+	while (node->getRightChild())
+	{
+		node = node->getRightChild();
+	}
+	return node;
+}
+
+void BinarySearchTree::insert(BinarySearchTree *z)
+{
+	BinarySearchTree *y = nullptr;
+	BinarySearchTree *x = root;
+
+	while (x)
+	{
+		y = x;
+		if (z->getKey() < x->getKey())
+		{
+			x = x->getLeftChild();
+		}
+		else
+		{
+			x = x->getRightChild();
+		}
+	}
+
+	z->setParent(y);
+
+	if (y == nullptr)
+	{
+		root = z;
+	}
+	else if (z->getKey() < y->getKey())
+	{
+		y->setLeftChild(z);
+	}
+	else
+	{
+		y->setRightChild(z);
+	}
+}
+
+int main(int argc, char const *argv[])
+{
+
+	return 0;
 }
