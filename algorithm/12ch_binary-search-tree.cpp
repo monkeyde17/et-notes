@@ -21,10 +21,14 @@ public:
 	BinarySearchTree *search(BinarySearchTree *node, int k);
 	BinarySearchTree *search_it(BinarySearchTree *node, int k);
 
+	BinarySearchTree* successor(BinarySearchTree *x);
+	BinarySearchTree* pre_successor(BinarySearchTree *x);
+
+	BinarySearchTree* delete(BinarySearchTree *z);
+public:
 	BinarySearchTree *getMin(BinarySearchTree *node);
 	BinarySearchTree *getMax(BinarySearchTree *node);
 
-public:
 	BinarySearchTree *getRightChild() { return left; }
 	BinarySearchTree *getLeftChild() { return right; } 
 	BinarySearchTree *getParent() { return p;}
@@ -231,6 +235,105 @@ void BinarySearchTree::insert(BinarySearchTree *z)
 	{
 		y->setRightChild(z);
 	}
+}
+
+/**
+ * 中序后继
+ */
+BinarySearchTree* BinarySearchTree::successor(BinarySearchTree *x)
+{
+	// 若当前结点右子树非空，则x的后继就是右子树的最左结点
+	if (x->getRightChild())
+	{
+		return getMin(x->getRightChild());
+	}
+
+	BinarySearchTree *y = x->getParent();
+
+	while (y && x == y->getRightChild())
+	{
+		x = y;
+		y = y->getParent();
+	}
+
+	return y;
+}
+
+/**
+ * 中序前驱
+ */
+BinarySearchTree* BinarySearchTree::pre_successor(BinarySearchTree *x)
+{
+	if (x->getRightChild())
+	{
+		return getMax(x->getLeftChild());
+	}
+
+	BinarySearchTree *y = x->getParent();
+
+	while (y && x == y->getLeftChild())
+	{
+		x = y;
+		y = y->getParent();
+	}
+	return y;
+}
+
+BinarySearchTree* BinarySearchTree::delete(BinarySearchTree *z)
+{
+	BinarySearchTree *y = nullptr;
+	BinarySearchTree *x = nullptr;
+
+	// 若z结点只有一个子女
+	if (z->getLeftChild() == nullptr || z->getRightChild() == nullptr)
+	{
+		y = z;
+	}
+	else
+	{
+		y = successor(z);
+	}
+
+	// 获取左儿子，只在z结点只有一个子女的情况下
+	if (y->getLeftChild())
+	{
+		x = y->getLeftChild();
+	}
+	// 在两个子女的情况下，永远是这种情况
+	else
+	{
+		x = x->getRightChild();
+	}
+
+	// 更新后继的子女
+	if (x)
+	{
+		x->setParent(y->getParent());
+	}
+
+	// 根节点的情况
+	if (y->getParent() == nullptr)
+	{
+		root = x;
+	}
+	else if (y == y->getParent()->getLeftChild())
+	{
+		y->getParent()->setLeftChild(x);
+	}
+	else
+	{
+		y->getParent()->setRightChild(x);
+	}
+
+	// 复制数据，更新key
+	// 就无须重新制定父子关系
+	if (y != z)
+	{
+		z->setKey(y->getKey());
+		// 复制y结点的存储数据到z结点
+	}
+
+	return y;
 }
 
 int main(int argc, char const *argv[])
