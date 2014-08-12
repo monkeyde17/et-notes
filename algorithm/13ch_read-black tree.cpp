@@ -13,12 +13,17 @@ public:
 	virtual ~RedBlackTree();
 public:
 	void insert(RedBlackTree *z);
+	RedBlackTree* delete(RedBlackTree *z);
 
 	void leftRotate();
 	void rightRotate();
 
 private:
 	void insertFixup(RedBlackTree *z);
+	void deleteFixup(RedBlackTree *z);
+	RedBlackTree* successor(RedBlackTree *z);
+	RedBlackTree* getMin(RedBlackTree *root);
+
 
 	RedBlackTree *getRightChild() { return left; }
 	RedBlackTree *getLeftChild() { return right; } 
@@ -238,8 +243,132 @@ void RedBlackTree::insertFixup(RedBlackTree *z)
 	root->setColor(BLACK);
 }
 
+RedBlackTree* RedBlackTree::getMin(RedBlackTree *x)
+{
+	RedBlackTree *y = x;
+	while (y->getLeftChild())
+	{
+		y = y->getLeftChild();
+	}
+	return y;
+}
+
+RedBlackTree* RedBlackTree::successor(RedBlackTree *z)
+{
+
+	if (z->getRightChild())
+	{
+		return getMin(z->getRightChild());
+	}
+
+	RedBlackTree *y = nullptr;
+	y = z->getParent();
+	while (y && z == y->getRightChild())
+	{
+		z = y;
+		y = y->getParent();
+	}
+
+	return y;
+}
+
+RedBlackTree* RedBlackTree::delete(RedBlackTree* z)
+{
+	// 如同删除普通二叉查找树一样
+	RedBlackTree *y = nullptr;
+	RedBlackTree *x = nullptr;
+
+	if (z->getLeftChild() || z->getRightChild())
+	{
+		y = z;
+	}
+	else
+	{
+		y = successor(z);
+	}
+
+	if (y->getLeftChild())
+	{
+		x = y->getLeftChild();
+	}
+	else
+	{
+		x = y->getRightChild();
+	}
+
+	x->setParent(y->getParent());
+
+	if (y->getParent() == nullptr)
+	{
+		root = x;
+	}
+	else if (y == y->getParent()->getLeftChild())
+	{
+		y->getParent()->setLeftChild(x);
+	}
+	else
+	{
+		y->getParent()->setRightChild(x);
+	}
+
+	if (y != z)
+	{
+		z->setKey(y->getKey());
+	}
+
+	if (y->getColor() == BLACK)
+	{
+		deleteFixup(x);
+	}
+
+	return y;
+}
+
+void RedBlackTree::deleteFixup(RedBlackTree *z)
+{
+	RedBlackTree *w = nullptr;
+	while (x != root && x->getColor() == BLACK)
+	{
+		if (x == x->getParent()->getLeftChild())
+		{
+			w = x->getParent()->getRightChild();
+			if (w->getColor() == RED)
+			{
+				w->setColor(BLACK);
+				x->getParent()->setColor(RED);
+				leftRotate(x->getParent());
+				w = x->getParent()->getRightChild();
+			}
+
+			if (w->getLeftChild()->getColor() == BLACK && w->getRightChild()->getColor() == BLACK)
+			{
+				w->setColor(RED);
+				x = x->getParent();
+			}
+			else if (w->getRightChild()->getColor() == BLACK)
+			{
+				w->setColor(RED);
+				rightRotate(w);
+				w = x->getParent()->getRightChild();
+			}
+
+			w->setColor(x->getParent()->getColor());
+			x->getParent()->setColor(BLACK);
+			w->getRightChild()->setColor(BLACK);
+			leftRotate(x->getParent())
+			x = root;
+		}
+		else
+		{
+			// same as
+		}
+	}
+	x->setColor(BLACK);
+}
+
 int main(int argc, char const *argv[])
 {
 	/* code */
 	return 0;
 }
+ 

@@ -128,17 +128,17 @@ void RedBlackTree::rightRotate()
 
 插入分3中情况：
 
-1. z的叔叔y是红色
+* 1\. z的叔叔y是红色
 
 > * z的父亲和y着色为黑色
 > * z的祖父着色为红色
 > * 将z上移两层，进行下次迭代
 
-2. z的叔叔y是黑色的，而且z是右孩子
+* 2\. z的叔叔y是黑色的，而且z是右孩子
 
 > * 以z的父节点左旋一次，使z成为左孩子，进入第三种情况
 
-3. z的叔叔y是黑色的，而且z是左孩子
+* 3\. z的叔叔y是黑色的，而且z是左孩子
 
 > * z的父亲着色为黑色
 > * z的祖父作色为红色
@@ -257,4 +257,76 @@ void RedBlackTree::insertFixup(RedBlackTree *z)
     // 根结点为黑色
     root->setColor(BLACK);
 }
+```
+
+## 13\.4 删除
+
+如果被删除的y结点是红色的，则当y结点删除后，红黑性质仍然得以保持。理由如下
+
+* 树中各节点的黑高度都没变化。
+* 不存在两个相邻的红色结点
+* 如果y结点是红色的，就不可能是根节点。
+
+如果被删除的结点是黑色的，则会产生3个问题：
+
+1. 如果y原来的是根节点，而y的一个红儿子成为了新的根，这就违反了性质2
+2. 如果x和y的父节点(也是x的父节点)都是红的，就违反了性质4
+3. 删除y将导致先前包含y的任何路径上黑结点个数少1。因此性质5就被y的一个祖先给破坏了。为解决这个问题，就是把结点x视为还有额外的一重黑色。即将任意包含结点x的路径上黑色结点数加1，则性质5成立。将黑色结点y删除时，将黑色下推至其字节点。问题就变成结点x可能既不是红，也不是黑，从而违反了性质1。
+
+
+
+```cpp
+RedBlackTree* RedBlackTree::delete(RedBlackTree* z)
+{
+    // 如同删除普通二叉查找树一样
+    RedBlackTree *y = nullptr;
+    RedBlackTree *x = nullptr;
+
+    if (z->getLeftChild() || z->getRightChild())
+    {
+        y = z;
+    }
+    else
+    {
+        y = successor(z);
+    }
+
+    if (y->getLeftChild())
+    {
+        x = y->getLeftChild();
+    }
+    else
+    {
+        x = y->getRightChild();
+    }
+
+    x->setParent(y->getParent());
+
+    if (y->getParent() == nullptr)
+    {
+        root = x;
+    }
+    else if (y == y->getParent()->getLeftChild())
+    {
+        y->getParent()->setLeftChild(x);
+    }
+    else
+    {
+        y->getParent()->setRightChild(x);
+    }
+
+    if (y != z)
+    {
+        z->setKey(y->getKey());
+    }
+
+    if (y->getColor() == BLACK)
+    {
+        deleteFixup(x);
+    }
+
+    return y;
+}
+
+
 ```
