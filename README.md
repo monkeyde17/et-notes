@@ -6,3 +6,4 @@ Etond's Programming Language Note
 * Computer Graphics with OpenGL, Fourth Edition
 * Programming Game AI by Example
 * C++ Primer, Five Edition
+* Data Structures and Algorithm Analysis in C
