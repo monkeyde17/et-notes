@@ -7,3 +7,4 @@ Etond's Programming Language Note
 - [ ] Programming Game AI by Example
 - [ ] C++ Primer, Five Edition
 - [ ] Data Structures and Algorithm Analysis in C
+- [ ] OpenGL SuperBible Fifth Edition
