@@ -8,3 +8,4 @@ Etond's Programming Language Note
 - [ ] C++ Primer, Five Edition
 - [ ] Data Structures and Algorithm Analysis in C
 - [ ] OpenGL SuperBible Fifth Edition
+- [ ] 3D数学基础：图形与游戏开发
