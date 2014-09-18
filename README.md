@@ -18,3 +18,8 @@ Etond's Programming Language Note
 - Computer Graphics with OpenGl, chapter 4 
 - OpenGL SuperBible, chapter 6
 - 3D数学基础, chapter 10
+
+## Date 20140918
+
+- Programming Game AI by Example, chapter 4
+- OpenGL SuperBible, chapter 6
