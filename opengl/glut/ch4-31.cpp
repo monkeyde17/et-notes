@@ -40,7 +40,8 @@ void lineGraph(void)
     
     for (k = 0; k < 12; k++)
     {
-        glRasterPos2i(xRaster + k * 50, dataValue[k] - 4);
+        /* may be the line show be like these*/
+        glRasterPos2i(xRaster + k * 50 - winWidth, dataValue[k] - 4);
         glutBitmapCharacter(GLUT_BITMAP_9_BY_15, '*');
     }
     
