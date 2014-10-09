@@ -24,12 +24,15 @@ int main(int argc, const char * argv[])
 1. OC的@
 
     a. `@autoreleasepool` 垃圾自动回收，OC一些关键字以@开头
+
     b. 字符串加了`@`前缀的，表示是一个`NSString`字符串
+
     c. `%@`在NSLog内打印对象，实际上是向对象发送`description`消息
 
 2. 消息
 
     a. 例如`[NSString alloc]`表示向`NSString`对象发送`alloc`消息。
+
     b. 消息的参数
 
 --------------------------------------------
