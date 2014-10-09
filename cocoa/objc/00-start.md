@@ -3,7 +3,7 @@ Objective-C ---- 神奇
 
 先来段`hello world`的代码看看
 
-```
+```objc
 #import <Foundation/Foundation.h>
 
 int main(int argc, const char * argv[])
