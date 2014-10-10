@@ -29,7 +29,7 @@ int main(int argc, const char * argv[])
 
     c. `%@`在NSLog内打印对象，实际上是向对象发送`description`消息
 
-2. 消息
+2. 消息（方法，函数）
 
     a. 例如`[NSString alloc]`表示向`NSString`对象发送`alloc`消息。
 
