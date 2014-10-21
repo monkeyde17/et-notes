@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <string>
+#include <time.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -31,25 +33,31 @@ void insertion_sort(int *pArray, int iLen)
 void print(int *pArray, int iLen, string szLogInfo)
 {
     cout << szLogInfo << endl;
-    for (int i = 0; i < iLen; ++i)
-    {
-        cout << pArray[i] << ", ";
-    }
+    for (int i = 0; i < iLen; ++i) { cout << pArray[i] << ", "; }
     cout << endl;
+}
+
+void randarray(int *pA, int iLen)
+{
+    srand(time(NULL));
+
+    for (int i = 0; i < 50; ++i)
+    {
+        swap(pA[rand() % iLen], pA[rand() % iLen]);
+    }
 }
 
 int main(void)
 {
     int pA[] = {10, 20, 1, 21, 321, 11};
+
+    randarray(pA, 6);
+
     print(pA, 6, "sort before :");
     insertion_sort(pA, 6);
     print(pA, 6, "sort after :");
 
 
-    int pA2[] = {133, 322, 133, 21, 2, 1};
-    print(pA2, 6, "sort before :");
-    insertion_sort(pA2, 6);
-    print(pA2, 6, "sort after :");
     return 0;
 }
 
