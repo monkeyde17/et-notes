@@ -11,7 +11,7 @@ using namespace std;
 
 typedef struct Point
 {
-    void *data;
+    int data;
     struct Point *next;
 }Point;
 
@@ -74,7 +74,70 @@ Point *getCycleStart(Point *pHead)
     return pStart;
 }
 
+void test1()
+{
+    Point *pHead = new Point();
+    pHead->data = 1;
+
+    Point *pIt = pHead;
+
+    for (int i = 1; i <= 9; i++)
+    {
+        pIt->next = new Point();
+
+        pIt = pIt->next;
+        pIt->data = i;
+        pIt->next = NULL;
+    }
+
+    cout << "-- Test 1 --" << endl;
+
+    Point *pMeet = isCycle(pHead);
+    if (pMeet) cout << "The cycle " << pMeet->data << endl;
+    else cout << "No cycle" << endl;
+
+    cout << "-- End --" << endl;
+}
+
+void test2()
+{
+    Point *pHead = new Point();
+    pHead->data = 1;
+
+    Point *pIt = pHead;
+
+    for (int i = 2; i <= 9; i++)
+    {
+        pIt->next = new Point();
+        pIt = pIt->next;
+
+        pIt->data = i;
+        pIt->next = NULL;
+    }
+    /* the final element */
+    /* the cycle */
+    pIt->next = pHead->next;
+
+    cout << "-- Test 2 --" << endl;
+
+    /* meet at a element */
+    Point *pMeet = isCycle(pHead);
+    if (pMeet) cout << "The cycle meet at : " << pMeet->data << endl;
+    else cout << "No cycle" << endl;
+
+    /* cycle lenth */
+    cout << "The cycle len : " << getCycleLen(pHead) << endl;
+
+    Point *pStart = getCycleStart(pHead);
+    if (pStart) cout << "The start : " << pStart->data << endl;
+    else cout << "No cycle" << endl;
+    
+    cout << "-- End --" << endl;
+}
+
 int main(void)
 {
+    test1();
+    test2();
     return 0;
 }
