@@ -5,12 +5,12 @@
     > Created Time: 二  9/ 2 21:33:23 2014
  ************************************************************************/
 
-#include "11-1-MathUtil.h"
-#include "6-1-Vector3.h"
+#include "MathUtil.h"
+#include "Vector3.h"
 
 const Vector3 kZeroVecotr(0.0f, 0.0f, 0.0f);
 
-float warpPi(float theta)
+float wrapPi(float theta)
 {
 	theta += kPi;
 	theta -= floor(theta * k1Over2Pi) * k2Pi;

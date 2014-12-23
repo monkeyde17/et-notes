@@ -15,7 +15,7 @@ const float kPiOver2 = kPi / 2.0f;
 const float k1OverPi = 1.0f / kPi;
 const float k1Over2Pi = 1.0f / k2Pi;
 
-extern float warpPi(float theta);
+extern float wrapPi(float theta);
 extern float safeAcos(float x);
 
 inline void sinCos(float *returnSin, float *returnCos, float theta)
