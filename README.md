@@ -32,3 +32,9 @@ Etond's Programming Language Note
 - OpenGL SuperBible Sixth, chapter 6
 - Developing iOS 7 Apps for iPhone and iPad, Lesson 7
 
+## Date 20150102
+
+- Developing iOS 7 Apps for iPhone and iPad, Lesson 16
+- OpenGL SuperBible Sixth, chapter 6
+
+
